@@ -1,0 +1,37 @@
+/* Styles */
+body{
+  font-family: 'helvetica', sans-serif;
+  background-color: #bcd5e2;
+}
+
+h1{
+  text-align: center;
+}
+
+tbody{
+  background-color: #fff;
+}
+
+th, td{
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+}
+
+th{
+  background-color: #49B8B2;
+  color: #fff;
+}
+
+tr:hover{
+  background-color: #23485E;
+  color: #fff;
+}
+
+.referer-table{
+  background-color: #bcd5e2;
+}
+
+tr:hover .referer-table tbody{
+  background-color: #fff;
+  color: #000;
+}
