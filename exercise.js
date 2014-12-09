@@ -1,17 +1,11 @@
 var cb = function(result) {
 
   var arr =[];
-  var table = document.getElementsByTagName('tbody')[0];
+  //create document fragment for appending content to the DOM later 
+  var frag = document.createDocumentFragment();
 
-  createArray();
-
-  init: window.setTimeout(function() {
-      cbApi.getData(cb);
-      createArray();
-    }, 5000);
-
-  //convert the object to an array
-  function createArray() {
+  //convert the result object to an array
+  var createArray = function (result) {
     for( var i in result) {
       if (result.hasOwnProperty(i)){
          arr.push(result[i]);
@@ -19,34 +13,48 @@ var cb = function(result) {
            // descending: first # of visits greater than the previous
            return obj2.stats.people - obj1.stats.people;
          });
+         return arr;
       }
     }
-    displayPages();
-  }
+  };
 
   //append the info to the DOM
-  function displayPages() {
+  var displayPages = function (arr){
+    var row, statsCell, titleCell;
+    var table = document.getElementsByTagName('tbody')[0];
     //reset the table to be empty every time it polls for updates
     table.innerHTML = "";
+
     for (var i=0; i<10; i++){
-        table.innerHTML = table.innerHTML + '<tr><td>' + arr[0][i].stats.people + '</td>'+ '<td class="title">' + arr[0][i].title + '</td></tr>';
+        row = document.createElement("tr");
+        statsCell = document.createElement("td");
+        titleCell = document.createElement("td");
+        titleCell.className = 'title';
+        statsCell.textContent = arr[0][i].stats.people;
+        titleCell.textContent = arr[0][i].title;
+        row.appendChild(statsCell);
+        row.appendChild(titleCell);
+        frag.appendChild(row);
     }
-    addClick();
-  }
+    table.appendChild(frag);
+  };
 
   //add click event listener to page titles
-  function addClick() {
+  var addClick = function () {
     var titles = document.getElementsByClassName('title');
-    var refererTable;
+    var refererTable = document.getElementsByClassName('referer-table');
     var dataDisplayed;
     for(var i=0; i<titles.length; i++) {
+      //need to capture the value of i at each pass through the loop by passing it into a newly created 'titleIndex' object.
+      //otherwise at the point that the onclick method is invoked, the for loop has already completed and the variable i already has a value of 10. 
       titles[i].onclick = function(titleIndex) {
         return function(){
+          //if referer-table is already open, close it
           if (dataDisplayed === true){
-              refererTable = document.getElementsByClassName('referer-table');
               refererTable[0].style.display = "none";
               dataDisplayed = false;
             }
+            //otherwise call displayReferers to render the table
             else{
               displayReferers(titleIndex, arr);
               dataDisplayed = true;
@@ -54,24 +62,24 @@ var cb = function(result) {
           };
       }(i);
     }
-  }
+  };
 
   //display referer info on button click
-  function displayReferers(titleIndex, arr){
+  var displayReferers = function (titleIndex, arr){
     var referers = arr[0][titleIndex].stats.toprefs;
     //'titleIndex + 1' to account for the fact that first 'tr' is actually in the table head
     var tr = document.getElementsByTagName('tr')[titleIndex+1];
     var tableHeading = document.createElement('thead');
     var th = document.createElement('th');
-    var headingText = document.createTextNode( 'Details -' + arr[0][titleIndex].title);
     var refererTable = document.createElement("table");
     var tableBody = document.createElement('tbody');
-    var row, visitorCell, visitorNumber, domain, domainCell;
+    var row, visitorCell, domainCell;
 
     th.colSpan = '2';
-    th.appendChild(headingText);
+    th.textContent = 'Details -' + arr[0][titleIndex].title;
     tableHeading.appendChild(th);
     refererTable.appendChild(tableHeading);
+    refererTable.appendChild(tableBody);
     refererTable.className = 'referer-table';
     refererTable.style.display = "block";
     tr.appendChild(refererTable);
@@ -80,18 +88,29 @@ var cb = function(result) {
       row = document.createElement("tr");
       visitorCell = document.createElement("td");
       domainCell = document.createElement("td");
-      visitorNumber = document.createTextNode(arr[0][titleIndex].stats.toprefs[i].visitors);
-      domain = document.createTextNode(arr[0][titleIndex].stats.toprefs[i].domain);
-      visitorCell.appendChild(visitorNumber);
-      domainCell.appendChild(domain);
+      visitorCell.textContent = arr[0][titleIndex].stats.toprefs[i].visitors;
+      domainCell.textContent = arr[0][titleIndex].stats.toprefs[i].domain;
       row.appendChild(visitorCell);
       row.appendChild(domainCell);
-      tableBody.appendChild(row);
-      refererTable.appendChild(tableBody);
-      tr.appendChild(refererTable);
+      frag.appendChild(row);
     }
-  }
+    tableBody.appendChild(frag);
+  };
+
+  return {
+    createArray: createArray(result),
+    displayPages: displayPages(arr),
+    addClick: addClick(),
+  };
 
 };
 
+//passing the cb module as a callback function
 cbApi.getData(cb);
+
+//polls for updates every 5 seconds
+window.setTimeout(function() {
+    cbApi.getData(cb);
+}, 5000);
+
+

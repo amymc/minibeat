@@ -20,7 +20,6 @@ var cbApi = (function  () {
     };
     request.send();
   };
-
   return api;
 
 })();
