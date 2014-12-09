@@ -26,15 +26,15 @@ var cb = function(result) {
 		table.innerHTML = "";
 
 		for (var i=0; i<10; i++){
-				row = document.createElement("tr");
-				statsCell = document.createElement("td");
-				titleCell = document.createElement("td");
-				titleCell.className = 'title';
-				statsCell.textContent = arr[0][i].stats.people;
-				titleCell.textContent = arr[0][i].title;
-				row.appendChild(statsCell);
-				row.appendChild(titleCell);
-				frag.appendChild(row);
+			row = document.createElement("tr");
+			statsCell = document.createElement("td");
+			titleCell = document.createElement("td");
+			titleCell.className = 'title';
+			statsCell.textContent = arr[0][i].stats.people;
+			titleCell.textContent = arr[0][i].title;
+			row.appendChild(statsCell);
+			row.appendChild(titleCell);
+			frag.appendChild(row);
 		}
 		table.appendChild(frag);
 	};
@@ -110,7 +110,7 @@ cbApi.getData(cb);
 
 //polls for updates every 5 seconds
 window.setTimeout(function() {
-		cbApi.getData(cb);
+	cbApi.getData(cb);
 }, 5000);
 
 
