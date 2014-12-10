@@ -1,4 +1,5 @@
 var cb = function(result) {
+    'use strict';
 
     var arr =[];
     //create document fragment for appending content to the DOM later 
@@ -21,9 +22,9 @@ var cb = function(result) {
     //append the info to the DOM
     var displayPages = function (arr){
         var row, statsCell, titleCell;
-        var table = document.getElementsByTagName('tbody')[0];
+        var mainTable = document.getElementsByTagName('tbody')[0];
         //reset the table to be empty every time it polls for updates
-        table.innerHTML = "";
+        mainTable.innerHTML = "";
 
         for (var i=0; i<10; i++){
             row = document.createElement("tr");
@@ -36,7 +37,7 @@ var cb = function(result) {
             row.appendChild(titleCell);
             frag.appendChild(row);
         }
-        table.appendChild(frag);
+        mainTable.appendChild(frag);
     };
 
     //add click event listener to page titles
@@ -49,17 +50,8 @@ var cb = function(result) {
             //otherwise at the point that the onclick method is invoked, the for loop has already completed and the variable i already has a value of 10. 
             titles[i].onclick = function(titleIndex) {
                 return function(){
-                    //if referer-table is already open, close it
-                    if (dataDisplayed === true){
-                            refererTable[0].style.display = "none";
-                            dataDisplayed = false;
-                        }
-                        //otherwise call displayReferers to render the table
-                        else{
-                            displayReferers(titleIndex, arr);
-                            dataDisplayed = true;
-                        }
-                    };
+                    displayReferers(titleIndex, arr);
+                };
             }(i);
         }
     };
@@ -67,24 +59,15 @@ var cb = function(result) {
     //display referer info on button click
     var displayReferers = function (titleIndex, arr){
         var referers = arr[0][titleIndex].stats.toprefs;
-        //'titleIndex + 1' to account for the fact that first 'tr' is actually in the table head
-        var tr = document.getElementsByTagName('tr')[titleIndex+1];
-        var tableHeading = document.createElement('thead');
-        var th = document.createElement('th');
-        var refererTable = document.createElement("table");
-        var tableBody = document.createElement('tbody');
+        var refererTable = document.getElementsByTagName('tbody')[1];
+        var tableHeading = document.getElementsByTagName('th')[2];
         var row, visitorCell, domainCell;
 
-        th.colSpan = '2';
-        th.textContent = 'Details -' + arr[0][titleIndex].title;
-        tableHeading.appendChild(th);
-        refererTable.appendChild(tableHeading);
-        refererTable.appendChild(tableBody);
-        refererTable.className = 'referer-table';
-        refererTable.style.display = "block";
-        tr.appendChild(refererTable);
+        //reset the table to be empty before appending new data
+        refererTable.innerHTML = "";
+        tableHeading.textContent = arr[0][titleIndex].title;
 
-        for(var i=0; i<referers.length; i++) {
+       for(var i=0; i<referers.length; i++) {
             row = document.createElement("tr");
             visitorCell = document.createElement("td");
             domainCell = document.createElement("td");
@@ -94,7 +77,7 @@ var cb = function(result) {
             row.appendChild(domainCell);
             frag.appendChild(row);
         }
-        tableBody.appendChild(frag);
+        refererTable.appendChild(frag);
     };
 
     return {
@@ -109,7 +92,7 @@ var cb = function(result) {
 cbApi.getData(cb);
 
 //polls for updates every 5 seconds
-window.setTimeout(function() {
+window.setInterval(function() {
     cbApi.getData(cb);
 }, 5000);
 
